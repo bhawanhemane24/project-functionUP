@@ -18,10 +18,13 @@ const blogModel = require('../models/blogModel')
         }
     
     const getblog= async function(req,res){
-        if(!author_id)res.status(404).send("authors not found")
+        //if(!author_id)res.status(404).send("authors not found")
         try{
-            let allblog= await blogModel.find().select({author_id:1,category:1,});
-            res.status.send({msg: allblog})
+            let allblog= await blogModel.find({isDeleted: false,isPublished: true});
+            if(!allblog){
+                res.status(404).send({msg:'No blog is found!!'})
+            }
+            res.status(200).send({msg: allblog})
 
         }
         catch(err){
@@ -29,6 +32,24 @@ const blogModel = require('../models/blogModel')
         }
     }
 
+    const updateBlog= async function(req,res){
+        try{
+            const blogId = req.params.blogId;
+            const blogDocument = req.body;
+            let isBlogIdExists = await blogModel.find({_id: blogId,isDeleted: false}).select({_id: 1});
+            if(!isBlogIdExists){
+                res.status(404).send('Blog Id is required!!')
+            }
+            const updateBlog = await blogModel.findByIdAndUpdate({_id: blogId}, blogDocument, {new: true} )
+            res.status(200).send({msg: updateBlog})
+            }
+            catch(err){
+                res.status(500).send({error: err.message})
+            }
+        }
+    
+
 
 module.exports.createBlog = createBlog;
 module.exports.getblog=getblog
+module.exports.updateBlog=updateBlog
