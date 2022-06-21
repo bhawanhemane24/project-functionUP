@@ -16,5 +16,7 @@ router.get("/test-me", function (req, res) {
 
 // router.put("/users/:userId", userController.updateUser)
 // router.delete('/users/:userId', userController.deleteUser)
+router.get("/blogs",blogController.getblog)
+router.post("/create",blogController.createBlog)
 
 module.exports = router;

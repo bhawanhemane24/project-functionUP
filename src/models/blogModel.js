@@ -16,9 +16,10 @@ const blogModel = new mongoose.Schema({
   },
   tags:{
     type:[String],
-    category: String,
-    required: true
+    required:true
   },
+    category: String,
+  
   subcategory: {
     type: [String]
   },
@@ -32,4 +33,4 @@ const blogModel = new mongoose.Schema({
   }
 },{ timestamps: {createdAt: 'created_at', updatedAt: 'updated_at', deletedAt: 'deleted_at',publishedAt: 'published_at'} })
 
-module.exports.blogModel = blogModel
+module.exports = mongoose.model('Problog',blogModel)
