@@ -3,7 +3,7 @@ const blogModel = require('../models/blogModel')
 const createBlog = async function(req,res){
     try{
         let newBlogEntry = req.body;
-        let newBlog = blogModel(newBlogEntry);
+        let newBlog = await blogModel.create(newBlogEntry);
         res.status(201).send({msg: newBlog});
        }
        catch(err){

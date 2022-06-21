@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Schema.Types.ObjectId
-const blogModel = new mongoose.Schema({
+const blogSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true
@@ -11,14 +11,14 @@ const blogModel = new mongoose.Schema({
   },
   author_id:{
     type: ObjectId,
-    ref: "Author",
+    ref: "Proauthor",
     required: true
   },
   tags:{
-    type:[String],
-    category: String,
+    type: [String],
     required: true
   },
+  category: String,
   subcategory: {
     type: [String]
   },
@@ -32,4 +32,4 @@ const blogModel = new mongoose.Schema({
   }
 },{ timestamps: {createdAt: 'created_at', updatedAt: 'updated_at', deletedAt: 'deleted_at',publishedAt: 'published_at'} })
 
-module.exports.blogModel = blogModel
+module.exports = mongoose.model('proBlog', blogSchema)
