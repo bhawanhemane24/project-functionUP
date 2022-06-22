@@ -8,18 +8,10 @@ router.get("/test-me", function (req, res) {
 })
 
 router.post("/authors", authorController.createAuthor)
-
-// router.post("/login", userController.loginUser)
-
-// //The userId is sent by front end
-// router.get("/users/:userId", userController.getUserData)
-// router.post("/users/:userId/posts", userController.postMessage)
-
-// router.put("/users/:userId", userController.updateUser)
-// router.delete('/users/:userId', userController.deleteUser)
-
 router.post("/blogs",blogController.createBlog)
-router.get("/blogs",blogController.getblog)
+router.get("/blogs",blogController.getBlog)
 router.put("/blogs/:blogId",blogController.updateBlog)
+router.delete("/blogs/:blogId",blogController.deleteBlog)
+router.delete("/blogs?queryParams",blogController.deleteBlogsBySelection)
 
 module.exports = router;
