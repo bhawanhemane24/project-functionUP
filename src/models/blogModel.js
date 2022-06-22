@@ -29,7 +29,9 @@ const blogSchema = new mongoose.Schema({
   isPublished: {
     type: Boolean,
     default: false
-  }
-},{ timestamps: {createdAt: 'created_at', updatedAt: 'updated_at', deletedAt: 'deleted_at',publishedAt: 'published_at'} })
+  },
+  deletedAt: String,
+  publishedAt: String
+},{ timestamps: true})
 
 module.exports = mongoose.model('proBlog', blogSchema)
