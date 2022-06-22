@@ -11,7 +11,7 @@ const blogModel = new mongoose.Schema({
   },
   author_id:{
     type: ObjectId,
-    ref: "Author",
+    ref: "Proauthor",
     required: true
   },
   tags:{

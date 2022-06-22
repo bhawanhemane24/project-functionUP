@@ -78,18 +78,7 @@ const blogModel = require('../models/blogModel')
             }
             
            } 
-           
-            // if(_id === data.author_id){
-            //     let allblog = await blogModel.findById(data.author_id);
-            //     res.status(200).send({msg: allblog})
-            // }
-            // if(category === data.query.category){
-            //     let allblog = await blogModel.find(data.query.category);
-            //     res.status(200).send({msg: allblog})
-            // }
-            //res.status(200).send({msg: allblog})
 
-        
         catch(err){
            return res.status(500).send({Error:err.message})
         }
@@ -105,14 +94,20 @@ const blogModel = require('../models/blogModel')
             }
             const updatedBlog = await blogModel.findByIdAndUpdate({_id: blogId}, blogDocument, {new: true} )
             if (!updatedBlog.isPublished) {
-                let timeStamps = new Date(); //getting the current timeStamps
-                let updateData = await blogModel.findOneAndUpdate(
-                    { _id: blogId }, //finding the blogId in the database to update the publishedAt
-                    { publishedAt: timeStamps }, //updating the publishedAt
-                    { new: true } //returning the updated data
+                let timeStamps = new Date(); //getting the current DATE for publishedAt
+                let updateBlogAdditionalData = await blogModel.findOneAndUpdate(
+                    { _id: blogId }, //finding the blogId in the COLLECTION to update the PUBLISH STATUS & PUBLISHEDAT
+                    { isPublished: true, publishedAt: timeStamps }, //updating the IsPublished status publishedAt
+                    { new: true } 
                 )
-                return res.status(200).send({ status: true, data: updateData });
+                return res.status(200).send({
+                    status: true,
+                    data: {
+                        updateBlogAdditionalData
+                    }
+                  });
             }
+            res.status(200).send("Blog is already published")
             //return res.status(200).send({msg: updateBlog})
             }
             catch(err){
@@ -133,8 +128,8 @@ const blogModel = require('../models/blogModel')
           }
           return res.status(404).send({
             status: false,
-            msg: "Blog not found"
-            })
+            msg: "Blog is not found"
+          })
             }
             catch(err){
            return res.status(500).send({error: err.message})
