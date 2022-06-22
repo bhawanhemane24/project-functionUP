@@ -1,89 +1,70 @@
 const { response } = require('express');
 const blogModel = require('../models/blogModel')
 
-
-
-    const createBlog = async function(req,res){
-        try{
-            let newBlogEntry = req.body;
-            if(!newBlogEntry.author_id){
-               return res.status(404).send("Author id is required!");
-            }
-            let newBlog = await blogModel.create(newBlogEntry);
-            return res.status(201).send({msg: newBlog});
-           }
-           catch(err){
-           return res.status(500).send({Error:err.message})
-           }
+const createBlog = async function (req, res) {
+    try {
+        let newBlogEntry = req.body;
+        // let isAuthorExist = await blogModel.find({author_id: newBlogEntry.author_id}).populate('author_id');
+        //  if (!newBlogEntry.author_id) {
+        //      return res.status(404).send("Author id is required!");
+        //  }
+        if(!newBlogEntry.title ||!newBlogEntry.body ||!newBlogEntry.author_id || !newBlogEntry.tags){
+            return res.status(404).send({status: false , msg :"Mandatory Feilds is required!"});
         }
-    
-    const getBlog= async function(req,res){
-        //if(!author_id)res.status(404).send("authors not found")
-        try{
-            // let allblog= await blogModel.find({isDeleted: false,isPublished: true});
-            // if(!allblog){
-            //     res.status(404).send({msg:'No blog is found!!'})
-            // }
-            let data = req.query;
-            filter = {};
-            // if(data.author_id!==null)
-            // filter.author_id = data.author_id;
-            if(data.category){
-                filter.category = data.category;
-                
-            }
-            if(data.author_id){
-            filter.author_id = data.author_id;
+        // let authorDetails = await blogModel.find().populate('author_id')
+        // return res.status(200).send({})
+        // console.log(authorDetails)
+        // if (!newBlogEntry.author_id) {
+        //     return res.status(404).send("Author id is required!");
+        // }
+        let newBlog = await blogModel.create(newBlogEntry);
+        return res.status(201).send({
+            status: true,
+             data: {newBlog 
+             }
+            });
         }
-        if(data.tags){
-            filter.tags = data.tags;
-        }
-        if(data.subcategory){
-            filter.subcategory = data.subcategory;
-        }
-        if(data.author_id&&data.category){
-            filter.author_id = data.author_id;
-            filter.category = data.category;
-        }
-        if(data.author_id&&data.subcategory){
-            filter.author_id = data.author_id;
-            filter.subcategory = data.subcategory;
-        }
-        if(data.author_id&&data.tags){
-            filter.author_id = data.author_id;
-            filter.tags = data.tags;
-        }
-        if(data.category&&data.subcategory){
-            filter.author_id = data.author_id;
-            filter.tags = data.tags;
-        }
-        if(data.category&&data.tags){
-            filter.author_id = data.author_id;
-            filter.tags = data.tags;
-        }
-        if(data.tags&&data.subcategory){
-            filter.author_id = data.author_id;
-            filter.tags = data.tags;
-        }
-        if(data.author_id&&data.category&&data.tags&&data.subcategory){
-            filter.author_id = data.author_id;
-            filter.category = data.category;
-            filter.tags = data.tags;
-            filter.subcategory = data.subcategory;
-        }
-            let filteredBlog = await blogModel.find(filter)
-            res.status(200).send({filteredBlog})
-            if(!data.author_id||!data.category||!data.tags||!data.subcategory){
-               return res.status(404).send("Data not found")
-            }
-            
-           } 
-
-        catch(err){
-           return res.status(500).send({Error:err.message})
-        }
+    catch (err) {
+        return res.status(500).send({ Error: err.message })
     }
+}
 
+        const getBlog = async function (req, res) {
+            //if(!author_id)res.status(404).send("authors not found")
+            try {
+                let data = req.query;
+                filter = {
+                    isDeleted : false ,
+                    isPublished :true 
+                };
+                // if(data.author_id!==null)
+                // filter.author_id = data.author_id;
+                if (data.category) {
+                    filter.category = data.category;
+                }
+                if (data.author_id) {
+                    filter.author_id = data.author_id;
+                }
+                if (data.tags) {
+                    filter.tags = data.tags;
+                }
+                if (data.subcategory) {
+                    filter.subcategory = data.subcategory;
+                }
+                // let keyray = Object.keys(filter) ;
+                let filteredBlog = await blogModel.find(filter)
+                //console.log(filteredBlog)
+        
+                if (filteredBlog.length < 1){
+                    return  res.status(404).send({status: false,msg : 'No Blog found'})
+                }
+                return res.status(200).send({status: true, data: {filteredBlog}})
+
+    }
+    catch(err){
+        return res.status(500).send({Error:err.message})
+     }
+    }
     const updateBlog= async function(req,res){
         try{
             const blogId = req.params.blogId;
@@ -94,7 +75,7 @@ const blogModel = require('../models/blogModel')
             }
             const updatedBlog = await blogModel.findByIdAndUpdate({_id: blogId}, blogDocument, {new: true} )
             if (!updatedBlog.isPublished) {
-                let timeStamps = new Date(); //getting the current DATE for publishedAt
+                let timeStamps = new Date(); 
                 let updateBlogAdditionalData = await blogModel.findOneAndUpdate(
                     { _id: blogId }, //finding the blogId in the COLLECTION to update the PUBLISH STATUS & PUBLISHEDAT
                     { isPublished: true, publishedAt: timeStamps }, //updating the IsPublished status publishedAt
@@ -107,13 +88,17 @@ const blogModel = require('../models/blogModel')
                     }
                   });
             }
-            res.status(200).send("Blog is already published")
+            res.status(200).send({
+                status: true,
+                msg:"Blog is already published"
+            })
+            
             //return res.status(200).send({msg: updateBlog})
             }
             catch(err){
                 return res.status(500).send({error: err.message})
             }
-        }
+}
 
         const deleteBlog = async function(req,res){
             try{
@@ -124,7 +109,12 @@ const blogModel = require('../models/blogModel')
                                                 {_id: getblogId},
                                                 {$set: {isDeleted: true}},
                                                 {new: true})
-            return res.status(200).send({msg: deletedBlog})
+            return res.status(200).send({
+                status: true,
+                data: {
+                    deletedBlog
+                        }
+                })
           }
           return res.status(404).send({
             status: false,
@@ -136,18 +126,45 @@ const blogModel = require('../models/blogModel')
             }
         }
      const deleteBlogsBySelection = async function(req,res){
-        const document = req.query;
-        let deleteBlog = await blogModel.updateMany({
-                                        document,
-                                        isDeleted: true,
-                                        new: true
-        })
-        res.status(200).send({deleteBlog})
-     }
+        let data = req.query;
+                filter = {
+                    isPublished :false 
+                };
+                // if(data.author_id!==null)
+                // filter.author_id = data.author_id;
+                if (data.category) {
+                    filter.category = data.category;
+                }
+                if (data.author_id) {
+                    filter.author_id = data.author_id;
+                }
+                if (data.tags) {
+                    filter.tags = data.tags;
+                }
+                if (data.subcategory) {
+                    filter.subcategory = data.subcategory;
+                }
+             let blogDetail = await blogModel.findOne(filter).select({isDeleted: 1,_id:0})
+             if(blogDetail.isDeleted==false){
+                let timeStamp = new Date();
+                let deleteBlog = await blogModel.updateMany(
+                    filter,
+                    {isDeleted: true, deletedAt: timeStamp},
+                    {new: true}
+)
+return res.status(204).send({
+status: true,
+msg: "Blog has been deleted"
+})
+             }
+            return res.status(400).send({status: true,msg: "Blog is already deleted"})
+              
+        }
+    
 
 
 module.exports.createBlog = createBlog;
-module.exports.getBlog=getBlog
-module.exports.updateBlog=updateBlog
-module.exports.deleteBlog=deleteBlog
-module.exports.deleteBlogsBySelection=deleteBlogsBySelection
+module.exports.getBlog = getBlog
+module.exports.updateBlog = updateBlog
+module.exports.deleteBlog = deleteBlog
+module.exports.deleteBlogsBySelection = deleteBlogsBySelection

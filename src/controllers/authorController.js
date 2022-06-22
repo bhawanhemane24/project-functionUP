@@ -1,15 +1,26 @@
 const AuthorModel= require("../models/authorModel")
+var validator = require("email-validator");
+ 
 
 const createAuthor= async function (req, res) {
-    let author = req.body
-    let authorCreated = await AuthorModel.create(author)
-    res.send({data: authorCreated})
+    try{
+        let author = req.body
+        if (!author.fname || !author.lname || !author.title || !author.email || !author.password){
+            return res.status(400).send({status: false,msg:'Mandatory Feilds required'})
+        }
+       let isEmailValid = validator.validate(author.email);
+        if(!isEmailValid){
+         return res.status(400).send({status: false,msg: 'Please enter valid Id'})
+        }
+          
+        let authorCreated = await AuthorModel.create(author)
+          return res.status(201).send({data: authorCreated})
+           }
+    catch(err) {
+           return res.status(500).send({msg : err.message})
+    }
 }
 
-const getAuthorsData= async function (req, res) {
-    let authors = await AuthorModel.find()
-    res.send({data: authors})
-}
 
 module.exports.createAuthor= createAuthor
-module.exports.getAuthorsData= getAuthorsData
+
