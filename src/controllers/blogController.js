@@ -10,26 +10,18 @@ const blogModel = require('../models/blogModel')
             let newBlog = await blogModel.create(newBlogEntry);
             return res.status(201).send({msg: newBlog});
            }
-           catch(err){
+        catch(err){
            return res.status(500).send({Error:err.message})
            }
         }
-    // ********************************************
-    // const getblog= async function(req,res){
-    //     if(!author_id)res.status(404).send("authors not found")
-    //     try{
-    //         let allblog= await blogModel.find().select({author_id:1,category:1,});
-    //         res.status.send({msg: allblog})
-
-    //     }
-    //     catch(err){
-    //         res.status(500).send({Error:err.message})
-    //     }
-    // }
-
+    
     const getblog= async function(req,res){
         try{
+            const {author_id , category , tags , subcategory} = req.query
+            console.log(author_id , category ,tags , subcategory)
+
             let allblog= await blogModel.find({isDeleted: false,isPublished: true});
+            if(author_id)
             if(!allblog){
               return  res.status(404).send({msg:'No blog is found!!'})
             }
@@ -39,6 +31,23 @@ const blogModel = require('../models/blogModel')
           return  res.status(500).send({Error:err.message})
         }
     }
-
+// ************************************************************
+    const updateBlog= async function(req,res){
+        try{
+            const blogId = req.params.blogId;
+            const blogDocument = req.body;
+            let isBlogIdExists = await blogModel.find({_id: blogId,isDeleted: false}).select({_id: 1});
+            if(!isBlogIdExists){
+                res.status(404).send('Blog Id is required!!')
+            }
+            const updateBlog = await blogModel.findByIdAndUpdate({_id: blogId}, blogDocument, {new: true} )
+            res.status(200).send({msg: updateBlog})
+            }
+            catch(err){
+                res.status(500).send({error: err.message})
+            }
+        }
+    
 module.exports.createBlog = createBlog;
 module.exports.getblog=getblog
+module.exports.updateBlog=updateBlog
