@@ -17,7 +17,10 @@ const authorSchema =new mongoose.Schema({
         unique : true},
     password: {
         type : String ,
-        required : true }
+        required : true,
+        minlength : 8,
+        maxlength : 12
+        }
     } , {timestamps : true} ) ;
 
     module.exports = mongoose.model('Proauthor', authorSchema)

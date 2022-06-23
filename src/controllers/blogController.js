@@ -51,10 +51,7 @@ const createBlog = async function (req, res) {
                 if (data.subcategory) {
                     filter.subcategory = data.subcategory;
                 }
-                // let keyray = Object.keys(filter) ;
                 let filteredBlog = await blogModel.find(filter)
-                //console.log(filteredBlog)
-        
                 if (filteredBlog.length < 1){
                     return  res.status(404).send({status: false,msg : 'No Blog found'})
                 }
@@ -69,10 +66,14 @@ const createBlog = async function (req, res) {
         try{
             const blogId = req.params.blogId;
             const blogDocument = req.body;
-            let isBlogIdExists = await blogModel.findOne({$and:[{_id:blogId}, {isDeleted: false}]}).select({_id: 1});
-            if(!isBlogIdExists){
-               return res.status(404).send('Blog Id is required!!')
-            }
+            let isBlogIdExists = await blogModel.findOne({_id:blogId}).select({isDeleted: 1,_id:0});
+            //console.log(isBlogIdExists.isDeleted)
+             if(isBlogIdExists.isDeleted == true){
+                return res.status(404).send({
+                                            status: false,
+                                            msg: 'Blog does not exist!!'
+                                            })
+             }
             const updatedBlog = await blogModel.findByIdAndUpdate({_id: blogId}, blogDocument, {new: true} )
             if (!updatedBlog.isPublished) {
                 let timeStamps = new Date(); 
@@ -111,9 +112,7 @@ const createBlog = async function (req, res) {
                                                 {new: true})
             return res.status(200).send({
                 status: true,
-                data: {
-                    deletedBlog
-                        }
+                msg: "Blog is deleted"
                 })
           }
           return res.status(404).send({
@@ -126,38 +125,44 @@ const createBlog = async function (req, res) {
             }
         }
      const deleteBlogsBySelection = async function(req,res){
-        let data = req.query;
-                filter = {
-                    isPublished :false 
-                };
-                // if(data.author_id!==null)
-                // filter.author_id = data.author_id;
-                if (data.category) {
-                    filter.category = data.category;
-                }
-                if (data.author_id) {
-                    filter.author_id = data.author_id;
-                }
-                if (data.tags) {
-                    filter.tags = data.tags;
-                }
-                if (data.subcategory) {
-                    filter.subcategory = data.subcategory;
-                }
-             let blogDetail = await blogModel.findOne(filter).select({isDeleted: 1,_id:0})
-             if(blogDetail.isDeleted==false){
-                let timeStamp = new Date();
-                let deleteBlog = await blogModel.updateMany(
-                    filter,
-                    {isDeleted: true, deletedAt: timeStamp},
-                    {new: true}
+        try{
+            let data = req.query;
+            filter = {
+                isPublished :false 
+            };
+            if (data.category) {
+                filter.category = data.category;
+            }
+            if (data.author_id) {
+                filter.author_id = data.author_id;
+            }
+            if (data.tags) {
+                filter.tags = data.tags;
+            }
+            if (data.subcategory) {
+                filter.subcategory = data.subcategory;
+            }
+         let blogDetail = await blogModel.findOne(filter)
+         if(blogDetail.isDeleted==false){
+            let timeStamp = new Date();
+            let deleteBlog = await blogModel.updateMany(
+                filter,
+                {isDeleted: true, deletedAt: timeStamp},
+                {new: true}
 )
-return res.status(204).send({
+ res.status(204).send({
 status: true,
-msg: "Blog has been deleted"
+data: {deleteBlog}
 })
-             }
-            return res.status(400).send({status: true,msg: "Blog is already deleted"})
+         }
+         else{
+             res.status(400).send({status: true,msg: "Blog is already deleted"})
+         }
+        
+        }
+        catch(err){
+            res.status(500).send({status: false,msg: err.message})
+        }
               
         }
     
