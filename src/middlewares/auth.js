@@ -5,7 +5,7 @@ const blogModel = require('../models/blogModel');
 const authentication = async function(req,res,next){
     try{
         let authorId;
-        let authorIdToBeModified;
+        //let authorIdToBeModified;
         const token = req.headers['x-api-key'];
         if(!token){
             res.status(401).send({status: false, msg: 'Token does not exist'})
@@ -20,7 +20,7 @@ const authentication = async function(req,res,next){
              authorId = await blogModel.findOne({_id: blogId}).select({author_id: 1});
         }
         else{
-            authorId = req.query.author_id
+            authorId = decodeToken.authorId //taking author_id from token
         }
         
         // console.log(author);

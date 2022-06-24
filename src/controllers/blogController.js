@@ -18,14 +18,14 @@ const createBlog = async function (req, res) {
         //     return res.status(404).send("Author id is required!");
         // }
         let newBlog = await blogModel.create(newBlogEntry);
-        return res.status(201).send({
+         res.status(201).send({
             status: true,
              data: {newBlog 
              }
             });
         }
     catch (err) {
-        return res.status(500).send({ Error: err.message })
+         res.status(500).send({ Error: err.message })
     }
 }
 
@@ -46,20 +46,22 @@ const createBlog = async function (req, res) {
                     filter.author_id = data.author_id;
                 }
                 if (data.tags) {
-                    filter.tags = data.tags;
+                    let tagArr = data.tags.split(',');
+                    filter.tags = {$in: tagArr};
                 }
                 if (data.subcategory) {
-                    filter.subcategory = data.subcategory;
+                   let subcategoryArr = data.subcategory.split(',');
+                    filter.subcategory = {$in: subcategoryArr};
                 }
                 let filteredBlog = await blogModel.find(filter)
                 if (filteredBlog.length < 1){
                     return  res.status(404).send({status: false,msg : 'No Blog found'})
                 }
-                return res.status(200).send({status: true, data: {filteredBlog}})
+                   res.status(200).send({status: true, data: {filteredBlog}})
 
     }
     catch(err){
-        return res.status(500).send({Error:err.message})
+         res.status(500).send({Error:err.message})
      }
     }
     const updateBlog= async function(req,res){
@@ -128,7 +130,8 @@ const createBlog = async function (req, res) {
         try{
             let data = req.query;
             filter = {
-                isPublished :false 
+                isPublished :false,
+                isDeleted : false
             };
             if (data.category) {
                 filter.category = data.category;
@@ -137,26 +140,31 @@ const createBlog = async function (req, res) {
                 filter.author_id = data.author_id;
             }
             if (data.tags) {
-                filter.tags = data.tags;
+                let tagObj = {}
+                let tagArr = data.tags.split(',');
+                // tagArr.reduce((arr,el)=>({...arr,[el]: el}),{})
+                tagArr.map(el=> tagObj[tags])
+                filter.tags = {$and: [{tagArr}]};
             }
             if (data.subcategory) {
-                filter.subcategory = data.subcategory;
+                let subcategoryArr = data.subcategory.split(',');
+                filter.subcategory = {$and: subcategoryArr};
             }
-         let blogDetail = await blogModel.findOne(filter)
-         if(blogDetail.isDeleted==false){
+         let blogDetail = await blogModel.findOne(filter).select({isDeleted: 1,_id:0})
+         if(blogDetail){
             let timeStamp = new Date();
             let deleteBlog = await blogModel.updateMany(
                 filter,
                 {isDeleted: true, deletedAt: timeStamp},
                 {new: true}
 )
- res.status(204).send({
+ res.status(200).send({
 status: true,
-data: {deleteBlog}
+msg: 'Blog is deleted'
 })
          }
          else{
-             res.status(400).send({status: true,msg: "Blog is already deleted"})
+             res.status(400).send({status: true,msg: "Blog not found"})
          }
         
         }
