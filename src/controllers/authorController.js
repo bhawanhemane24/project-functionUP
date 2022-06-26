@@ -2,61 +2,56 @@ const AuthorModel= require("../models/authorModel")
 var validator = require("email-validator");
 const authorModel = require("../models/authorModel");
  const jwt = require("jsonwebtoken");
+const blogModel = require("../models/blogModel");
 
 const createAuthor= async function (req, res) {
     try{
         let author = req.body
         let validPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)/
         let validName = /^[A-Za-z ]+$/
-        //  if(!validPassword.test(author.password)){
-        //    return res.send("pass not valid")
-        //  }
+    
                if(!author.fname || typeof(author.fname) !== 'string' || !validName.test(author.fname)){
-                  return res.status(400).send({status: false,msg:'Enter valid FirstName'})
+                   res.status(400).send({status: false,msg:'Enter valid FirstName'})
+                   return
                }
 
                if(!author.lname || typeof(author.lname) !== 'string' || !validName.test(author.lname)){
-                  return  res.status(400).send({status: false , msg : 'Enter valid LastName'})
+                    res.status(400).send({status: false , msg : 'Enter valid LastName'})
+                    return
                }
-              //  if(!author.title || typeof(author.title) !== 'string'){
-              //     return res.status(400).send({status: false , msg : 'Enter valid Title'})
-              //  }
-              //  let titleEnum = Object.values(data.title);
-              //  console.log(titleEnum)
-              //  if(!author.email || typeof(author.email) !== 'string'){
-              //     return res.status(400).send({status: false ,msg : 'Enter valid EmailId'})
-              //  }
                  if(!author.password || typeof(author.password) !== 'string' || !validPassword.test(author.password)){ 
-                     return res.status(400).send({status: false, msg : 'Enter valid Password'})
+                      res.status(400).send({status: false, msg : 'Enter valid Password'})
+                      return
                  }
-                 if(author.password.length<8){
-                  return res.status(400).send({status: false, msg: 'Length Of password should be atleast 8'})
+                 if(author.password.length<8 ){
+                   res.status(400).send({status: false, msg: 'Length Of password should be atleast 8'})
+                   return
                 }
-              // console.log(String(author.fname).trim())
-              // if(!author.fname.trim()){
-              //   return res.status(400).send({status: false, msg: 'Valid FirstName is required!!'})
-              // }
-              // if(!author.lname.trim()){
-              //   return res.status(400).send({status: false, msg: 'Valid FirstName is required!!'})
-              // }
-               
+                if(author.password.length>12 ){
+                   res.status(400).send({status: false, msg: 'Length of password is exceeding'})
+                   return
+                }
        let isEmailValid = validator.validate(author.email);
         if(!isEmailValid){
-         return res.status(400).send({status: false,msg: 'Please enter valid Email Id'})
+          res.status(400).send({status: false,msg: 'Please enter valid Email Id'})
+          return
         }
         else{
           let authorsData = await authorModel.find();
           authorsData.map(el=>{
             if(el.email === author.email){
-             return res.send("Email Id already exists")
+              res.status(400).send("Email Id already exists")
+              return
             }
             })
         }
         let authorCreated = await AuthorModel.create(author)
            res.status(201).send({data: authorCreated})
+           return
            }
     catch(err) {
             res.status(500).send({msg : err.message})
+            return
     }
 }
 
@@ -84,7 +79,6 @@ const login = async function (req,res){
   catch(err){
     res.status(500).send({status: false, msh: err.message})
   }
-  //res.send()
 }
 
 module.exports.createAuthor= createAuthor
