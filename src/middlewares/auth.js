@@ -15,15 +15,6 @@ const authentication = async function (req, res, next) {
     if (!decodeToken) {
       return res.status(401).send({ status: false, msg: "Token is invalid" });
     }
-    //     const blogId = req.params.blogId;
-    //     if(blogId){
-    //          authorId = await blogModel.findById({_id: blogId}).select({author_id: 1});
-    //     }
-    //     else{
-    //         authorId = req.query.author_id
-    //     }
-    //   if(!authorId)
-    //   res.status(400).send({status: false, msg: 'Author does not exist!!!'})
     next();
   } catch (err) {
     return res.status(500).send({ status: false, msg: err.message });
