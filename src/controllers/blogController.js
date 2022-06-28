@@ -21,7 +21,7 @@ const createBlog = async function (req, res) {
         .send({ status: false, msg: "Please Enter Title!" });
     }
     if (!newBlogEntry.body) {
-      res.status(400).send({ status: false, msg: "Please Enter Title!" });
+      res.status(400).send({ status: false, msg: "Please Enter body!" });
       return;
     }
     if (!newBlogEntry.author_id) {
