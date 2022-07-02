@@ -15,9 +15,8 @@ const colleges = async function (req, res) {
 
         if (!logoLink) return res.status(400).send({ status: false, msg: "Logo link is required" })
 
-      if (!/(https?:\/\/.*\.(?:jpg|jpeg|png|gif))/i.test(logoLink)){
-         return res.status(400).send({ status: false, msg: "Please Enter valid Url" })
-      }
+      if (!/(https?:\/\/.*\.(?:jpg|jpeg|png|gif))/i.test(logoLink))return res.status(400).send({ status: false, msg: "Please Enter valid Url" })
+      
         const findName = await CollegeModel.findOne({name})
         if (findName) return res.status(400).send({ status: false, msg: "Existing college Name try different" })
 
