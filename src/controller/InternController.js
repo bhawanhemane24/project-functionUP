@@ -14,8 +14,8 @@ const isValidMobile = function (value) {
 
 const interns = async function (req, res) {
   try {
-    let data = req.body
-    let { name, email, mobile, collegeName } = data
+    const data = req.body
+    const { name, email, mobile, collegeName } = data
 
     if (Object.keys(data).length === 0) return res.status(400).send({ status: false, msg: "Please fill the required" })
 
@@ -45,7 +45,7 @@ const interns = async function (req, res) {
     const collegeId = collegeDetails._id
     const condition = { name, email, mobile, collegeId }
 
-    let internData = await InternModel.create(condition)
+    const internData = await InternModel.create(condition)
     res.status(201).send({ status: true, data: internData })
   } catch (error) {
     res.status(500).send({ msg: error.message })

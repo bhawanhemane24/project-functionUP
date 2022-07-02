@@ -4,8 +4,8 @@ const InternModel = require('../Model/InternModel')
 
 const colleges = async function (req, res) {
     try {
-        let data = req.body
-        let { name, fullName, logoLink } = data
+        const data = req.body
+        const { name, fullName, logoLink } = data
 
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "Fill all the college requirement" })
 
@@ -30,18 +30,18 @@ const colleges = async function (req, res) {
 
 const collegeDetails = async function (req, res) {
     try {
-        let name = req.query.collegeName
+        const  name = req.query.collegeName
         if (!name) return res.status(400).send({ status: false, msg: "CollegeName is required" })
 
-        let college = await CollegeModel.findOne({ name: name, isDeleted: false })
+        const college = await CollegeModel.findOne({ name: name, isDeleted: false })
         if (!college) return res.status(404).send({ status: false, msg: "College not found" })
 
-        let collegeData = {
+        const  collegeData = {
             name: college.name,
             fullName: college.fullName,
             logolink: college.logoLink
         }
-        let interns = await InternModel.find({ collegeId: college._id, isDeleted: false }).select
+        const interns = await InternModel.find({ collegeId: college._id, isDeleted: false }).select
             ({ createdAt: 0, updatedAt: 0, __v: 0, collegeId: 0 ,isDeleted: 0})
         if (interns.length > 0) {
             collegeData.interns = interns
